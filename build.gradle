@@ -1,12 +1,14 @@
 // Top-level build file where you can add configuration options libuvccommon to all sub-projects/modules.
 buildscript {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public/' }
         google()
+        mavenCentral()
         jcenter()
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20'
     }
@@ -14,7 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public/' }
         google()
+        mavenCentral()
         jcenter()
         maven { url "https://jitpack.io" }
     }

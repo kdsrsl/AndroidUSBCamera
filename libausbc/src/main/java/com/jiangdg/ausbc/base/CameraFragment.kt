@@ -16,7 +16,10 @@
 package com.jiangdg.ausbc.base
 
 import android.graphics.SurfaceTexture
-import android.view.*
+import android.view.Gravity
+import android.view.SurfaceHolder
+import android.view.TextureView
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -29,12 +32,11 @@ import com.jiangdg.ausbc.camera.CameraUvcStrategy
 import com.jiangdg.ausbc.camera.ICameraStrategy
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.ausbc.camera.bean.PreviewSize
-import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.render.effect.AbstractEffect
+import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.widget.AspectRatioSurfaceView
 import com.jiangdg.ausbc.widget.AspectRatioTextureView
 import com.jiangdg.ausbc.widget.IAspectRatio
-import java.lang.IllegalArgumentException
 
 /** Extends from BaseFragment for CameraClient usage
  *
@@ -148,6 +150,7 @@ abstract class CameraFragment : BaseFragment() {
      */
     protected fun updateResolution(width: Int, height: Int) {
         mCameraClient?.updateResolution(width, height)
+
     }
 
     /**

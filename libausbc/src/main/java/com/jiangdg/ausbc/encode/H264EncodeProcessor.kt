@@ -21,7 +21,6 @@ import android.media.MediaFormat
 import android.view.Surface
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.Utils
-import java.lang.Exception
 
 /**
  * Encode h264 by MediaCodec
@@ -46,9 +45,30 @@ class H264EncodeProcessor(
     override fun handleStartEncode() {
         try {
             val mediaFormat = MediaFormat.createVideoFormat(MIME, width, height)
-            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mFrameRate ?: FRAME_RATE)
+
+//            if (width < 2000 && height < 2000) {
+                // 分辨率低于2000，采用可变比特率模式，用于拍摄变动态画面
+                mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)
+//            } else {
+//                // 分辨率高于2000，采用恒定比特率模式，用于拍摄相对静态画面（例如：拍摄不可移动物体）
+//                mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR)
+//            }
+
+            // 描述视频格式的帧速率（以帧/秒为单位）的键。帧率 15-30FPS
+            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 5)
+//            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mFrameRate ?: FRAME_RATE)
             mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate ?: getEncodeBitrate(width, height))
-            mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, KEY_FRAME_INTERVAL)
+//            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate ?: calcBitRate(width,height))
+//            mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, KEY_FRAME_INTERVAL)
+
+            var frameInterval = 1
+            // 关键帧
+            if (width < 2000 && height < 2000) {
+                frameInterval = 8
+            }
+            // 关键帧时间间隔，即编码一次关键帧的时间间隔
+            mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, frameInterval)
+
             mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, getSupportColorFormat())
             mMediaCodec = MediaCodec.createEncoderByType(MIME)
             mMediaCodec?.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
@@ -103,13 +123,38 @@ class H264EncodeProcessor(
     private fun getEncodeBitrate(width: Int, height: Int): Int {
         var bitRate = width * height * 20 * 3 * 0.07F
         if (width >= 1920 || height >= 1920) {
+//            bitRate = 2080 * 1024 * 0.5F
+//            bitRate = 3150 * 1024F
             bitRate *= 0.75F
+            //bitRate *=0.3F
         } else if (width >= 1280 || height >= 1280) {
             bitRate *= 1.2F
+//            bitRate = 1130 * 1024 * 0.5F
         } else if (width >= 640 || height >= 640) {
-            bitRate *= 1.4F
+//            bitRate *= 1.4F
+//            bitRate = 500 * 1024 * 1F
+            bitRate = 256 * 1024 * 1F
         }
+
         return bitRate.toInt()
+    }
+
+    /**
+     * BIT_RATE 没有什么太大的坑，注意下单位就好 bits/seconds. 下面的图展示了，官方要求设备对于不同分辨率下需要支持的最低分辨率。
+     */
+    private fun calcBitRate(mWidth: Int, mHeight: Int): Int {
+        if (mWidth < 1000 && mHeight < 1000) {
+            return 1920 * 1080 / 25 // 1000以下（控制1/4）
+        }
+        if (mWidth < 2000 && mHeight < 2000) {
+            return 1920 * 1080 / 120 // 1000-2000之间（普通帧：1000-3000 关键帧：10000-40000 关：2/s）ok
+        }
+        if (mWidth < 3000 && mHeight < 3000) {
+            return 1920 * 1080 / 200
+        }
+        return if (mWidth > 3000 || mHeight > 3000) {
+            640 * 480 / 30
+        } else 0
     }
 
     /**
@@ -137,7 +182,7 @@ class H264EncodeProcessor(
 
     companion object {
         private const val TAG = "H264EncodeProcessor"
-        private const val MIME = "video/avc"
+        private const val MIME = "video/hevc"
         private const val FRAME_RATE = 30
         private const val KEY_FRAME_INTERVAL = 1
     }

@@ -28,7 +28,8 @@ import com.jiangdg.ausbc.callback.ICaptureCallBack
 import com.jiangdg.ausbc.callback.IEncodeDataCallBack
 import com.jiangdg.ausbc.callback.IPlayCallBack
 import com.jiangdg.ausbc.callback.IPreviewDataCallBack
-import com.jiangdg.ausbc.camera.*
+import com.jiangdg.ausbc.camera.CameraUvcStrategy
+import com.jiangdg.ausbc.camera.ICameraStrategy
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.ausbc.camera.bean.CameraStatus
 import com.jiangdg.ausbc.camera.bean.PreviewSize
@@ -38,8 +39,8 @@ import com.jiangdg.ausbc.encode.H264EncodeProcessor
 import com.jiangdg.ausbc.encode.bean.RawData
 import com.jiangdg.ausbc.encode.muxer.Mp4Muxer
 import com.jiangdg.ausbc.render.RenderManager
-import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.render.effect.AbstractEffect
+import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.utils.CameraUtils
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.Utils
@@ -524,16 +525,19 @@ class CameraClient internal constructor(builder: Builder) : IPreviewDataCallBack
 
     private fun initEncodeProcessor() {
         releaseEncodeProcessor()
-        val  encodeWidth = if (isEnableGLEs) {
-            mRequest!!.previewHeight
-        } else {
-            mRequest!!.previewWidth
-        }
-        val encodeHeight = if (isEnableGLEs) {
-            mRequest!!.previewWidth
-        } else {
-            mRequest!!.previewHeight
-        }
+//        val  encodeWidth = if (isEnableGLEs) {
+//            mRequest!!.previewHeight
+//        } else {
+//            mRequest!!.previewWidth
+//        }
+//        val encodeHeight = if (isEnableGLEs) {
+//            mRequest!!.previewWidth
+//        } else {
+//            mRequest!!.previewHeight
+//        }
+        val encodeWidth =  mRequest!!.previewWidth
+        val encodeHeight = mRequest!!.previewHeight
+        dc.common.Logger.w("camera client init ", mRequest!!.previewWidth, mRequest!!.previewHeight)
         mAudioProcess = AACEncodeProcessor(if ((mCamera is CameraUvcStrategy) && mCamera.isMicSupported()) {
             if (Utils.debugCamera) {
                 Logger.i(TAG, "Audio record by using device internal mic")

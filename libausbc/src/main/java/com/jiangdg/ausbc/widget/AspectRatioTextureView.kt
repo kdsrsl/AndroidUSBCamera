@@ -16,7 +16,6 @@
 package com.jiangdg.ausbc.widget
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.TextureView
@@ -39,11 +38,14 @@ class AspectRatioTextureView: TextureView, IAspectRatio {
     override fun setAspectRatio(width: Int, height: Int) {
         val orientation = context.resources.configuration.orientation
         // 处理竖屏和横屏情况
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            setAspectRatio(height.toDouble() / width)
-            return
-        }
+//        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            setAspectRatio(height.toDouble() / width)
+//            return
+//        }
         setAspectRatio(width.toDouble() / height)
+
+        dc.common.Logger.w("texture view set ratio",width,height)
+
     }
 
     override fun getSurfaceWidth(): Int  = width
@@ -78,6 +80,9 @@ class AspectRatioTextureView: TextureView, IAspectRatio {
         var initialHeight = MeasureSpec.getSize(heightMeasureSpec)
         val horizontalPadding = paddingLeft - paddingRight
         val verticalPadding = paddingTop - paddingBottom
+
+        dc.common.Logger.w(javaClass.name,initialWidth,initialHeight,horizontalPadding,verticalPadding,paddingLeft,paddingRight,paddingTop,paddingBottom)
+
         initialWidth -= horizontalPadding
         initialHeight -= verticalPadding
         // 比较预览与TextureView(内容)纵横比
@@ -86,6 +91,8 @@ class AspectRatioTextureView: TextureView, IAspectRatio {
         val diff = mAspectRatio / viewAspectRatio - 1
         var wMeasureSpec = widthMeasureSpec
         var hMeasureSpec = heightMeasureSpec
+
+        dc.common.Logger.w(javaClass.name,initialWidth,initialHeight,viewAspectRatio,diff,wMeasureSpec,hMeasureSpec)
         if (mAspectRatio > 0 && abs(diff) > 0.01) {
             // diff > 0， 按宽缩放
             // diff < 0， 按高缩放
@@ -103,6 +110,72 @@ class AspectRatioTextureView: TextureView, IAspectRatio {
         }
         super.onMeasure(wMeasureSpec, hMeasureSpec)
     }
+
+
+//    fun sizeNotify(width:Int,height: Int) {
+//        val viewWidth = width.toFloat()
+//        val viewHeight = height.toFloat()
+//        var scaleX = 1.0f
+//        var scaleY = 1.0f
+//        var mPreviewWidth: Int = width
+//        var mPreviewHeight: Int = height
+//        if (viewWidth < viewHeight) {
+//            mPreviewWidth = height
+//            mPreviewHeight = width
+//        }
+//        if (mPreviewWidth > viewWidth && mPreviewHeight > viewHeight) {
+//            scaleX = mPreviewWidth / viewWidth
+//            scaleY = mPreviewHeight / viewHeight
+//        } else if (mPreviewWidth < viewWidth && mPreviewHeight < viewHeight) {
+//            scaleY = viewWidth / mPreviewWidth
+//            scaleX = viewHeight / mPreviewHeight
+//        } else if (viewWidth > mPreviewWidth) {
+//            scaleY = viewWidth / mPreviewWidth / (viewHeight / mPreviewHeight)
+//        } else if (viewHeight > mPreviewHeight) {
+//            scaleX = viewHeight / mPreviewHeight / (viewWidth / mPreviewWidth)
+//        }
+//
+//        // Calculate pivot points, in our case crop from center
+//        val pivotPointX = (viewWidth / 2)
+//        val pivotPointY = (viewHeight / 2)
+//        val matrix = Matrix()
+//        matrix.setScale(scaleX, scaleY, pivotPointX, pivotPointY)
+//        /*Log.e(TAG, "viewsize:" + viewWidth + " * " + viewHeight +
+//                    ";prviewSize:" + mPreviewWidth + " * " + mPreviewHeight +
+//                    ";scale:" + scaleX + " * " + scaleY +
+//                    ";pivot:" + pivotPointX + " * " + pivotPointY);*/
+//        setTransform(matrix)
+//    }
+
+//    fun calculateSurfaceHolderTransform(): Matrix? {
+//        // 预览 View 的大小，比如 SurfaceView
+//        val viewHeight: Int = configManager.getScreenResolution().y
+//        val viewWidth: Int = configManager.getScreenResolution().x
+//        // 相机选择的预览尺寸
+//        val cameraHeight: Int = configManager.getCameraResolution().x
+//        val cameraWidth: Int = configManager.getCameraResolution().y
+//        // 计算出将相机的尺寸 => View 的尺寸需要的缩放倍数
+//        val ratioPreview = cameraWidth.toFloat() / cameraHeight
+//        val ratioView = viewWidth.toFloat() / viewHeight
+//        val scaleX: Float
+//        val scaleY: Float
+//        if (ratioView < ratioPreview) {
+//            scaleX = ratioPreview / ratioView
+//            scaleY = 1f
+//        } else {
+//            scaleX = 1f
+//            scaleY = ratioView / ratioPreview
+//        }
+//        // 计算出 View 的偏移量
+//        val scaledWidth = viewWidth * scaleX
+//        val scaledHeight = viewHeight * scaleY
+//        val dx = (viewWidth - scaledWidth) / 2
+//        val dy = (viewHeight - scaledHeight) / 2
+//        val matrix = Matrix()
+//        matrix.postScale(scaleX, scaleY)
+//        matrix.postTranslate(dx, dy)
+//        return matrix
+//    }
 
     companion object {
         private const val TAG = "AspectRatioTextureView"

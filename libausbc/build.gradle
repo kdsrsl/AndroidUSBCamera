@@ -41,4 +41,6 @@ dependencies {
     implementation project(path: ':libuvc')
     api project(path: ':libnative')
     implementation project(path: ':libpush')
+
+    implementation 'ml.dcjz.common:logger:1.0.16'
 }

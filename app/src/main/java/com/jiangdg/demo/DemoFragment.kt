@@ -41,29 +41,35 @@ import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.jiangdg.ausbc.CameraClient
 import com.jiangdg.ausbc.base.BaseBottomDialog
 import com.jiangdg.ausbc.base.CameraFragment
-import com.jiangdg.demo.databinding.FragmentDemoBinding
 import com.jiangdg.ausbc.callback.ICaptureCallBack
 import com.jiangdg.ausbc.callback.IPlayCallBack
 import com.jiangdg.ausbc.camera.Camera1Strategy
 import com.jiangdg.ausbc.camera.Camera2Strategy
 import com.jiangdg.ausbc.camera.CameraUvcStrategy
+import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.ausbc.camera.bean.CameraStatus
 import com.jiangdg.ausbc.render.effect.EffectBlackWhite
 import com.jiangdg.ausbc.render.effect.EffectSoul
 import com.jiangdg.ausbc.render.effect.EffectZoom
 import com.jiangdg.ausbc.render.effect.bean.CameraEffect
-import com.jiangdg.ausbc.utils.*
+import com.jiangdg.ausbc.render.env.RotateType
+import com.jiangdg.ausbc.utils.Logger
+import com.jiangdg.ausbc.utils.MediaUtils
+import com.jiangdg.ausbc.utils.ToastUtils
+import com.jiangdg.ausbc.utils.Utils
 import com.jiangdg.ausbc.utils.bus.BusKey
 import com.jiangdg.ausbc.utils.bus.EventBus
-import com.jiangdg.utils.imageloader.ILoader
-import com.jiangdg.utils.imageloader.ImageLoaders
 import com.jiangdg.ausbc.widget.*
 import com.jiangdg.demo.EffectListDialog.Companion.KEY_ANIMATION
 import com.jiangdg.demo.EffectListDialog.Companion.KEY_FILTER
 import com.jiangdg.demo.databinding.DialogMoreBinding
+import com.jiangdg.demo.databinding.FragmentDemoBinding
 import com.jiangdg.utils.MMKVUtils
+import com.jiangdg.utils.imageloader.ILoader
+import com.jiangdg.utils.imageloader.ImageLoaders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
@@ -115,6 +121,26 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                 coverResId = R.mipmap.filter1
             ),
         )
+    }
+
+    override fun getCameraClient(): CameraClient? {
+        return CameraClient.newBuilder(requireContext())
+                .setEnableGLES(true)   // use opengl render
+                .setRawImage(true)     // capture raw or filter image
+                .setDefaultEffect(EffectBlackWhite(requireContext())) // default effect
+                .setCameraStrategy(CameraUvcStrategy(requireContext())) // camera type
+                .setCameraRequest(getCameraRequest()) // camera configurations
+                .setDefaultRotateType(RotateType.ANGLE_0) // default camera rotate angle
+                .openDebug(true) // is debug mode
+                .build()
+    }
+
+    private fun getCameraRequest(): CameraRequest {
+        return CameraRequest.Builder()
+                .setFrontCamera(false) // only for camera1/camera2
+                .setPreviewWidth(640)  // initial camera preview width
+                .setPreviewHeight(480) // initial camera preview height
+                .create()
     }
 
     private val mTakePictureTipView: TipView by lazy {
@@ -283,6 +309,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
 
     override fun getCameraView(): IAspectRatio {
         return AspectRatioTextureView(requireContext())
+//        return AspectRatioSurfaceView(requireContext())
     }
 
     override fun getCameraViewContainer(): ViewGroup {

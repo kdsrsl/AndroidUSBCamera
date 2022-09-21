@@ -37,7 +37,6 @@ import java.io.File
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.Exception
 
 /** UVC Camera usage
  *
@@ -139,7 +138,7 @@ class CameraUvcStrategy(ctx: Context) : ICameraStrategy(ctx) {
                     request.previewHeight,
                     MIN_FS,
                     MAX_FS,
-                    UVCCamera.FRAME_FORMAT_MJPEG,
+                    UVCCamera.FRAME_FORMAT_MJPEG, //UVCCamera.FRAME_FORMAT_MJPEG,
                     UVCCamera.DEFAULT_BANDWIDTH
                 )
             } catch (e: Exception) {
