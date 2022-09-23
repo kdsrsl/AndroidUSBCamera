@@ -55,7 +55,7 @@ class H264EncodeProcessor(
 //            }
 
             // 描述视频格式的帧速率（以帧/秒为单位）的键。帧率 15-30FPS
-            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 5)
+            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 15)
 //            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mFrameRate ?: FRAME_RATE)
             mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate ?: getEncodeBitrate(width, height))
 //            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate ?: calcBitRate(width,height))
@@ -115,6 +115,7 @@ class H264EncodeProcessor(
 
     private fun getSupportColorFormat(): Int {
         if (gLESRender) {
+//            return MediaCodecInfo.CodecCapabilities.COLOR_FormatRawBayer8bitcompressed
             return MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         }
         return MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar
@@ -123,17 +124,20 @@ class H264EncodeProcessor(
     private fun getEncodeBitrate(width: Int, height: Int): Int {
         var bitRate = width * height * 20 * 3 * 0.07F
         if (width >= 1920 || height >= 1920) {
-//            bitRate = 2080 * 1024 * 0.5F
+//            bitRate = 2080 * 1024 * 1F
 //            bitRate = 3150 * 1024F
-            bitRate *= 0.75F
+//            bitRate *= 0.75F
             //bitRate *=0.3F
+            bitRate *=0.25F
         } else if (width >= 1280 || height >= 1280) {
-            bitRate *= 1.2F
-//            bitRate = 1130 * 1024 * 0.5F
+//            bitRate *= 1.2F
+            bitRate *= 0.33F
+//            bitRate = 1130 * 1024 * 1F
         } else if (width >= 640 || height >= 640) {
 //            bitRate *= 1.4F
-//            bitRate = 500 * 1024 * 1F
-            bitRate = 256 * 1024 * 1F
+            bitRate *= 0.4F
+//            bitRate = 500 * 1024 * 1F   //0.4
+//            bitRate = 256 * 1024 * 1F
         }
 
         return bitRate.toInt()

@@ -18,6 +18,11 @@ package com.jiangdg.media;
  *  limitations under the License.
 */
 
+import java.io.IOException;
+import java.util.Locale;
+
+import com.jiangdg.common.BuildConfig;
+
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -26,11 +31,6 @@ import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 
-import com.jiangdg.common.BuildConfig;
-
-import java.io.IOException;
-import java.util.Locale;
-
 @SuppressWarnings("deprecation")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class MediaVideoEncoder extends MediaEncoder implements ISurfaceEncoder {
@@ -38,7 +38,7 @@ public class MediaVideoEncoder extends MediaEncoder implements ISurfaceEncoder {
 	private static final String TAG = "MediaEncoder";
 
 	private static final String MIME_TYPE = MediaCodecHelper.MIME_VIDEO_AVC;
-	private static final int FRAME_RATE = 25;
+	private static final int FRAME_RATE = 15; //25
 	private static final float BPP = 0.25f;
 	private Surface mSurface;
 	private int mVideoWidth = 1280;

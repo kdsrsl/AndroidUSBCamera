@@ -133,12 +133,15 @@ class CameraUvcStrategy(ctx: Context) : ICameraStrategy(ctx) {
                 return null
             }
             try {
+                dc.common.Logger.w(javaClass.name,request.previewWidth,request.previewHeight)
                 mUVCCamera?.setPreviewSize(
                     request.previewWidth,
                     request.previewHeight,
                     MIN_FS,
                     MAX_FS,
-                    UVCCamera.FRAME_FORMAT_MJPEG, //UVCCamera.FRAME_FORMAT_MJPEG,
+                        UVCCamera.FRAME_FORMAT_MJPEG,
+//                    if(request.previewWidth == 1280 || request.previewHeight == 1280)UVCCamera.FRAME_FORMAT_MJPEG //UVCCamera.FRAME_FORMAT_MJPEG,
+//                    else UVCCamera.FRAME_FORMAT_YUYV ,
                     UVCCamera.DEFAULT_BANDWIDTH
                 )
             } catch (e: Exception) {
