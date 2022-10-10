@@ -16,6 +16,7 @@
 package com.jiangdg.ausbc.widget
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.TextureView
@@ -38,10 +39,10 @@ class AspectRatioTextureView: TextureView, IAspectRatio {
     override fun setAspectRatio(width: Int, height: Int) {
         val orientation = context.resources.configuration.orientation
         // 处理竖屏和横屏情况
-//        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            setAspectRatio(height.toDouble() / width)
-//            return
-//        }
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setAspectRatio(height.toDouble() / width)
+            return
+        }
         setAspectRatio(width.toDouble() / height)
 
         dc.common.Logger.w("texture view set ratio",width,height)

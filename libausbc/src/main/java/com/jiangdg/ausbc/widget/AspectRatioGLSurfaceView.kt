@@ -29,11 +29,11 @@ import android.view.Surface
 import com.jiangdg.ausbc.R
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.MediaUtils
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -279,7 +279,7 @@ class AspectRatioGLSurfaceView : GLSurfaceView, GLSurfaceView.Renderer,
     override fun setAspectRatio(width: Int, height: Int) {
         val orientation = context.resources.configuration.orientation
         // 处理竖屏和横屏情况
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setAspectRatio(height.toDouble() / width)
             return
         }

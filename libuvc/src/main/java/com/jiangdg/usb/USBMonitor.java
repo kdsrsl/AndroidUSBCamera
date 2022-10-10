@@ -23,6 +23,21 @@
 
 package com.jiangdg.usb;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.jiangdg.utils.BuildCheck;
+import com.jiangdg.utils.HandlerThreadHandler;
+import com.jiangdg.utils.XLogWrapper;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -37,24 +52,8 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
-
-import com.jiangdg.utils.XLogWrapper;
 import android.util.SparseArray;
-
 import androidx.annotation.RequiresApi;
-
-import com.jiangdg.utils.BuildCheck;
-import com.jiangdg.utils.HandlerThreadHandler;
-
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class USBMonitor {
 
@@ -166,7 +165,7 @@ public final class USBMonitor {
 	 * register BroadcastReceiver to monitor USB events
 	 * @throws IllegalStateException
 	 */
-	@SuppressLint("UnspecifiedImmutableFlag")
+	@SuppressLint({"UnspecifiedImmutableFlag", "WrongConstant"})
 	public synchronized void register() throws IllegalStateException {
 		if (destroyed) throw new IllegalStateException("already destroyed");
 		if (mPermissionIntent == null) {
@@ -174,7 +173,11 @@ public final class USBMonitor {
 			final Context context = mWeakContext.get();
 			if (context != null) {
 				if (Build.VERSION.SDK_INT >= 31) {
-					mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
+					// avoid acquiring intent data failed in receiver on Android12
+					// when using PendingIntent.FLAG_IMMUTABLE
+					// because it means Intent can't be modified anywhere -- jiangdg/20220929
+					int PENDING_FLAG_IMMUTABLE = 1<<25;
+					mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), PENDING_FLAG_IMMUTABLE);
 				} else {
 					mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
 				}
@@ -579,9 +582,9 @@ public final class USBMonitor {
 
 	/**
 	 * open specific USB device
-	 * @param device
+	 * @param device UsbDevice
 	 */
-	private final void processConnect(final UsbDevice device) {
+	private void processConnect(final UsbDevice device) {
 		if (destroyed) return;
 		updatePermission(device, true);
 		mAsyncHandler.post(() -> {
@@ -597,12 +600,17 @@ public final class USBMonitor {
 				createNew = false;
 			}
 			if (mOnDeviceConnectListener != null) {
+				if (ctrlBlock.getConnection() == null) {
+					XLogWrapper.e(TAG, "processConnect: Open device failed");
+					mOnDeviceConnectListener.onCancel(device);
+					return;
+				}
 				mOnDeviceConnectListener.onConnect(device, ctrlBlock, createNew);
 			}
 		});
 	}
 
-	private final void processCancel(final UsbDevice device) {
+	private void processCancel(final UsbDevice device) {
 		if (destroyed) return;
 		if (DEBUG) XLogWrapper.v(TAG, "processCancel:");
 		updatePermission(device, false);
@@ -616,7 +624,7 @@ public final class USBMonitor {
 		}
 	}
 
-	private final void processAttach(final UsbDevice device) {
+	private void processAttach(final UsbDevice device) {
 		if (destroyed) return;
 		if (DEBUG) XLogWrapper.v(TAG, "processAttach:");
 		if (mOnDeviceConnectListener != null) {
@@ -629,7 +637,7 @@ public final class USBMonitor {
 		}
 	}
 
-	private final void processDettach(final UsbDevice device) {
+	private void processDettach(final UsbDevice device) {
 		if (destroyed) return;
 		if (DEBUG) XLogWrapper.v(TAG, "processDettach:");
 		if (mOnDeviceConnectListener != null) {
@@ -1005,6 +1013,15 @@ public final class USBMonitor {
 			mWeakMonitor = new WeakReference<USBMonitor>(monitor);
 			mWeakDevice = new WeakReference<UsbDevice>(device);
 			mConnection = monitor.mUsbManager.openDevice(device);
+			if (mConnection == null) {
+				XLogWrapper.w(TAG, "openDevice failed in UsbControlBlock11, wait and try again");
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				mConnection = monitor.mUsbManager.openDevice(device);
+			}
 			mInfo = updateDeviceInfo(monitor.mUsbManager, device, null);
 			final String name = device.getDeviceName();
 			final String[] v = !TextUtils.isEmpty(name) ? name.split("/") : null;
@@ -1020,9 +1037,9 @@ public final class USBMonitor {
 				if (mConnection != null) {
 					final int desc = mConnection.getFileDescriptor();
 					final byte[] rawDesc = mConnection.getRawDescriptors();
-					XLogWrapper.i(TAG, String.format(Locale.US, "name=%s,desc=%d,busnum=%d,devnum=%d,rawDesc=", name, desc, busnum, devnum) + rawDesc);
+					XLogWrapper.i(TAG, String.format(Locale.US, "name=%s,desc=%d,busnum=%d,devnum=%d,rawDesc=", name, desc, busnum, devnum) + Arrays.toString(rawDesc));
 				} else {
-					XLogWrapper.e(TAG, "could not connect to device " + name);
+					XLogWrapper.e(TAG, "could not connect to device(mConnection=null) " + name);
 				}
 //			}
 		}
@@ -1040,7 +1057,16 @@ public final class USBMonitor {
 			}
 			mConnection = monitor.mUsbManager.openDevice(device);
 			if (mConnection == null) {
-				throw new IllegalStateException("device may already be removed or have no permission");
+				XLogWrapper.w(TAG, "openDevice failed in UsbControlBlock, wait and try again");
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				mConnection = monitor.mUsbManager.openDevice(device);
+				if (mConnection == null) {
+					throw new IllegalStateException("openDevice failed. device may already be removed or have no permission, dev = " + device);
+				}
 			}
 			mInfo = updateDeviceInfo(monitor.mUsbManager, device, null);
 			mWeakMonitor = new WeakReference<USBMonitor>(monitor);

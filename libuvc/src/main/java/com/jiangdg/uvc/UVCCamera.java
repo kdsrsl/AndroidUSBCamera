@@ -188,6 +188,7 @@ public class UVCCamera {
     public synchronized void open(final UsbControlBlock ctrlBlock) {
     	int result = -2;
 		StringBuilder sb = new StringBuilder();
+		close();
     	try {
 			mCtrlBlock = ctrlBlock.clone();
 			result = nativeConnect(mNativePtr,
@@ -210,10 +211,10 @@ public class UVCCamera {
 
 		if (result != 0) {
 			throw new UnsupportedOperationException("open failed:result=" + result+"----->" +
-					"id_camera="+mNativePtr+";venderId="+mCtrlBlock.getVenderId()
-					+";productId="+mCtrlBlock.getProductId()+";fileDescriptor="+mCtrlBlock.getFileDescriptor()
-					+";busNum="+mCtrlBlock.getBusNum()+";devAddr="+mCtrlBlock.getDevNum()
-					+";usbfs="+getUSBFSName(mCtrlBlock)+"\n"+"Exception："+sb.toString());
+					"id_camera="+mNativePtr+";venderId="+(mCtrlBlock==null ? "": mCtrlBlock.getVenderId())
+					+";productId="+(mCtrlBlock==null ? "": mCtrlBlock.getProductId())+";fileDescriptor="+(mCtrlBlock==null ? "": mCtrlBlock.getFileDescriptor())
+					+";busNum="+(mCtrlBlock==null ? "": mCtrlBlock.getBusNum())+";devAddr="+(mCtrlBlock==null ? "": mCtrlBlock.getDevNum())
+					+";usbfs="+(mCtrlBlock==null ? "": getUSBFSName(mCtrlBlock))+"\n"+"Exception："+sb.toString());
 		}
 
     	if (mNativePtr != 0 && TextUtils.isEmpty(mSupportedSize)) {
@@ -960,7 +961,7 @@ public class UVCCamera {
 	    	    	nativeUpdateWhiteBlanceLimit(mNativePtr);
 	    	    	nativeUpdateFocusLimit(mNativePtr);
     	    	}
-    	    	if (DEBUG) {
+    	    	if (false) {
 					dumpControls(mControlSupports);
 					dumpProc(mProcSupports);
 					XLogWrapper.v(TAG, String.format("Brightness:min=%d,max=%d,def=%d", mBrightnessMin, mBrightnessMax, mBrightnessDef));
