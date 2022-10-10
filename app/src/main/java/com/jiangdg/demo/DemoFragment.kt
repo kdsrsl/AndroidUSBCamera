@@ -35,6 +35,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.widget.TextViewCompat
@@ -123,12 +124,25 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun getCameraClient(): CameraClient? {
+        var cameraUvcStrategy = CameraUvcStrategy(requireContext())
+        cameraUvcStrategy.setZoom(0)
+        cameraUvcStrategy.setSharpness(0)
+        cameraUvcStrategy.setHue(0)
+        cameraUvcStrategy.setSaturation(0)
+        cameraUvcStrategy.setContrast(0)
+        cameraUvcStrategy.setGamma(0)
+        cameraUvcStrategy.setGain(0)
+        cameraUvcStrategy.setAutoWhiteBalance(true)
+        cameraUvcStrategy.setAutoFocus(true)
+
         return CameraClient.newBuilder(requireContext())
-                .setEnableGLES(true)   // use opengl render
-                .setRawImage(true)     // capture raw or filter image
-                .setDefaultEffect(EffectBlackWhite(requireContext())) // default effect
-                .setCameraStrategy(CameraUvcStrategy(requireContext())) // camera type
+//                .setEnableGLES(true)   // use opengl render
+//                .setRawImage(true)     // capture raw or filter image
+                //.setDefaultEffect(EffectBlackWhite(requireContext())) // default effect
+                .setCameraStrategy(cameraUvcStrategy) // camera type
+//                .setCameraStrategy(Camera2Strategy(requireContext())) // camera type
                 .setCameraRequest(getCameraRequest()) // camera configurations
                 .setDefaultRotateType(RotateType.ANGLE_0) // default camera rotate angle
                 .openDebug(true) // is debug mode

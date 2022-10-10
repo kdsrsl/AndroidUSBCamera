@@ -37,6 +37,7 @@ import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.widget.AspectRatioSurfaceView
 import com.jiangdg.ausbc.widget.AspectRatioTextureView
 import com.jiangdg.ausbc.widget.IAspectRatio
+import dc.common.Logger
 
 /** Extends from BaseFragment for CameraClient usage
  *
@@ -65,6 +66,18 @@ abstract class CameraFragment : BaseFragment() {
                 addView(view, getViewLayoutParams(this))
             }
         }
+
+        mCameraClient?.addPreviewDataCallBack(object : IPreviewDataCallBack {
+            override fun onPreviewData(data: ByteArray?, format: IPreviewDataCallBack.DataFormat) {
+                Logger.w("addPreviewDataCallBack $data  $format")
+            }
+        })
+
+        mCameraClient?.addEncodeDataCallBack(object : IEncodeDataCallBack {
+            override fun onEncodeData(data: ByteArray?, size: Int, type: IEncodeDataCallBack.DataType) {
+                Logger.w("addEncodeDataCallBack $data  $size  $type")
+            }
+        })
     }
 
     private fun handleTextureView(textureView: AspectRatioTextureView) {
