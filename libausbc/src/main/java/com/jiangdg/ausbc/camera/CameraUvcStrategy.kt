@@ -65,9 +65,10 @@ class CameraUvcStrategy(ctx: Context) : ICameraStrategy(ctx) {
         try {
             val devList = getUsbDeviceListInternal()
             if (devList.isNullOrEmpty()) {
-                val emptyTip = "Find no uvc devices, " +
-                        "if you want some special device please use getUsbDeviceList() " +
-                        "or add device info into default_device_filter.xml"
+//                val emptyTip = "Find no uvc devices, " +
+//                        "if you want some special device please use getUsbDeviceList() " +
+//                        "or add device info into default_device_filter.xml"
+                val emptyTip = "未找到摄像头设备"
                 postCameraStatus(
                     CameraStatus(
                         CameraStatus.ERROR,
@@ -256,7 +257,7 @@ class CameraUvcStrategy(ctx: Context) : ICameraStrategy(ctx) {
                 mCaptureDataCb?.onBegin()
             }
             val date = mDateFormat.format(System.currentTimeMillis())
-            val title = savePath ?: "IMG_JJCamera_$date"
+            val title = savePath ?: "IMG_$date"
             val displayName = savePath ?: "$title.jpg"
             val path = savePath ?: "$mCameraDir/$displayName"
             val orientation = 0

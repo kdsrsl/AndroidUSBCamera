@@ -29,7 +29,6 @@ import com.jiangdg.ausbc.camera.bean.PreviewSize
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.Utils
 import java.io.File
-import kotlin.Exception
 
 /** Camera1 usage
  *
@@ -84,7 +83,7 @@ class Camera1Strategy(ctx: Context) : ICameraStrategy(ctx), Camera.PreviewCallba
                     mCaptureDataCb?.onBegin()
                 }
                 val date = mDateFormat.format(System.currentTimeMillis())
-                val title = savePath ?: "IMG_JJCamera_$date"
+                val title = savePath ?: "IMG_$date"
                 val displayName = savePath ?: "$title.jpg"
                 val path = savePath ?: "$mCameraDir/$displayName"
                 val width = getRequest()?.previewWidth

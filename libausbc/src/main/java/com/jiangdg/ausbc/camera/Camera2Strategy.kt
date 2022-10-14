@@ -30,16 +30,15 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.jiangdg.ausbc.callback.IPreviewDataCallBack
 import com.jiangdg.ausbc.camera.bean.CameraStatus
-import com.jiangdg.ausbc.camera.bean.PreviewSize
-import com.jiangdg.ausbc.utils.SettableFuture
 import com.jiangdg.ausbc.camera.bean.CameraV2Info
+import com.jiangdg.ausbc.camera.bean.PreviewSize
 import com.jiangdg.ausbc.utils.Logger
+import com.jiangdg.ausbc.utils.SettableFuture
 import com.jiangdg.ausbc.utils.Utils
 import java.io.File
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
-import kotlin.Exception
 
 /** Camera2 usage
  *
@@ -595,7 +594,7 @@ class Camera2Strategy(ctx: Context) : ICameraStrategy(ctx) {
                     }
                 }
                 val date = mDateFormat.format(System.currentTimeMillis())
-                val title = savePath ?: "IMG_JJCamera_$date"
+                val title = savePath ?: "IMG_$date"
                 val displayName = savePath ?: "$title.jpg"
                 val path = savePath ?: "$mCameraDir/$displayName"
 //                val orientation = captureResult[CaptureResult.JPEG_ORIENTATION]

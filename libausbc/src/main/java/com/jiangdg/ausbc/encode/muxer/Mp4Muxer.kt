@@ -30,7 +30,6 @@ import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.MediaUtils
 import com.jiangdg.ausbc.utils.Utils
 import java.io.File
-import java.lang.Exception
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -79,7 +78,7 @@ class Mp4Muxer(
         try {
             if (path.isNullOrEmpty()) {
                 val date = mDateFormat.format(System.currentTimeMillis())
-                path = "$mCameraDir/VID_JJCamera_$date"
+                path = "$mCameraDir/VID_$date"
             }
             mOriginalPath = path
             path = "${path}.mp4"

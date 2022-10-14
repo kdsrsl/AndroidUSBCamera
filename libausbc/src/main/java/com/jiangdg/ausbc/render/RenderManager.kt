@@ -32,10 +32,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.jiangdg.ausbc.callback.ICaptureCallBack
-import com.jiangdg.ausbc.render.env.RotateType
 import com.jiangdg.ausbc.render.effect.AbstractEffect
-import com.jiangdg.ausbc.render.internal.*
-import com.jiangdg.ausbc.utils.*
+import com.jiangdg.ausbc.render.env.RotateType
+import com.jiangdg.ausbc.render.internal.CameraRender
+import com.jiangdg.ausbc.render.internal.CaptureRender
+import com.jiangdg.ausbc.render.internal.EncodeRender
+import com.jiangdg.ausbc.render.internal.ScreenRender
+import com.jiangdg.ausbc.utils.GLBitmapUtils
+import com.jiangdg.ausbc.utils.Logger
+import com.jiangdg.ausbc.utils.Utils
 import com.jiangdg.ausbc.utils.bus.BusKey
 import com.jiangdg.ausbc.utils.bus.EventBus
 import java.io.File
@@ -407,7 +412,8 @@ class RenderManager(context: Context, private val previewWidth: Int, private val
             mCaptureDataCb?.onBegin()
         }
         val date = mDateFormat.format(System.currentTimeMillis())
-        val title = savePath ?: "IMG_JJCamera_$date"
+//        val title = savePath ?: "IMG_UvcCamera_$date"
+        val title = savePath ?: "IMG_$date"
         val displayName = savePath ?: "$title.jpg"
         val path = savePath ?: "$mCameraDir/$displayName"
         val width = mWidth

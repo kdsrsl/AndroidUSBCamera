@@ -138,8 +138,8 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         cameraUvcStrategy.setAutoFocus(true)
 
         return CameraClient.newBuilder(requireContext())
-//                .setEnableGLES(true)   // use opengl render
-//                .setRawImage(true)     // capture raw or filter image
+                .setEnableGLES(true)   // use opengl render
+                .setRawImage(true)     // capture raw or filter image
                 //.setDefaultEffect(EffectBlackWhite(requireContext())) // default effect
                 .setCameraStrategy(cameraUvcStrategy) // camera type
 //                .setCameraStrategy(Camera2Strategy(requireContext())) // camera type
